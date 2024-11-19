@@ -213,7 +213,6 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
     cut(code);
     std::map<std::string,long long>link=linkLabel(code);
     long long pc=0;
-    binCode.push_back("0011000000000000");
     for(auto &i:code){
         std::istringstream iss(i);
         std::string word;
@@ -221,6 +220,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         if(word==".ORIG"){
             iss>>word;
             pc=numToDex(word);
+            binCode.push_back(numToStrBin(word,16));
         }
         else if(word==".BLKW"){
             iss>>word;
