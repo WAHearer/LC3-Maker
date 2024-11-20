@@ -1,4 +1,5 @@
 #include"Assembler.h"
+const std::regex isNumber("X[+-]?[0-9A-F]+|#[+-]?[0-9]+");
 Assembler::Assembler(){
     oprandToBinary["ADD"]="0001";
     oprandToBinary["AND"]="0101";
@@ -268,7 +269,10 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                     binLine+=word.find('P')!=std::string::npos?"1":"0";
                 }
                 iss>>word;
-                binLine+=numToStrBin("#"+std::to_string(link[word]-pc),9);
+                if(std::regex_match(word,isNumber))
+                    binLine+=numToStrBin(word,9);
+                else
+                    binLine+=numToStrBin("#"+std::to_string(link[word]-pc),9);
             }
             else if(word=="JMP"){
                 iss>>word;
@@ -279,7 +283,10 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             else if(word=="JSR"){
                 iss>>word;
                 binLine+="1";
-                binLine+=numToStrBin("#"+std::to_string(link[word]-pc),11);
+                if(std::regex_match(word,isNumber))
+                    binLine+=numToStrBin(word,11);
+                else
+                    binLine+=numToStrBin("#"+std::to_string(link[word]-pc),11);
             }
             else if(word=="JSRR"){
                 iss>>word;
@@ -290,7 +297,10 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             else if(word=="LD"||word=="LDI"||word=="LEA"||word=="ST"||word=="STI"){
                 iss>>word;
                 binLine+=regNameToStrBin(word[1]);
-                binLine+=numToStrBin("#"+std::to_string(link[word.substr(3)]-pc),9);
+                if(std::regex_match(word,isNumber))
+                    binLine+=numToStrBin(word,9);
+                else
+                    binLine+=numToStrBin("#"+std::to_string(link[word.substr(3)]-pc),9);
             }
             else if(word=="LDR"||word=="STR"){
                 iss>>word;
