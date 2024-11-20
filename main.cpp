@@ -15,4 +15,5 @@ int main() {
     for(auto &i:binCode){
         cout<<i<<endl;
     }
+    return 0;
 }
