@@ -2,6 +2,7 @@
 #include<vector>
 #include<map>
 #include<sstream>
+#include<regex>
 #ifndef LC3_ASSEMBLER_ASSEMBLER_H
 #define LC3_ASSEMBLER_ASSEMBLER_H
 class Assembler{
