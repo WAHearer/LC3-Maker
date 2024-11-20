@@ -1,5 +1,6 @@
 #include"Assembler.h"
 const std::regex isNumber("X[+-]?[0-9A-F]+|#[+-]?[0-9]+");
+const std::regex isValidSyntax("((ADD|AND) R[0-7],R[0-7],((R[0-7])|(X[+-]?[0-9A-F]+|#[+-]?[0-9]+)))|(BRN?Z?P? [^ ]+)|(JMP R[0-7])|(JSR [^ ]+)|(JSRR R[0-7])|((LD|LDI|LEA|ST|STI) R[0-7],[^ ]+)|((LDR|STR) R[0-7],R[0-7],(X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(NOT R[0-7],R[0-7])|RET|RTI|(TRAP (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|HALT|(\.ORIG (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.FILL (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.BLKW (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.STRINGZ \".+\")|\.END");
 Assembler::Assembler(){
     oprandToBinary["ADD"]="0001";
     oprandToBinary["AND"]="0101";
@@ -37,6 +38,9 @@ std::string Assembler::regNameToStrBin(const char &c){
             return "110";
         case '7':
             return "111";
+        default:
+            std::cout<<"invalid register name";
+            exit(1);
     }
 }
 long long Assembler::numToDex(const std::string &num){
@@ -85,8 +89,10 @@ std::string Assembler::numToStrBin(const std::string &num, int bits){
                 negative=true;
         }
     }
-    if((negative&&decimalNum>1<<(bits-1))||(!negative&&decimalNum>(1<<(bits-1))-1))
-        exit(2);//too big for the size
+    if((negative&&decimalNum>1<<(bits-1))||(!negative&&decimalNum>(1<<(bits-1))-1)){
+        std::cout<<"the number is too big";
+        exit(1);
+    }
     if(negative&&decimalNum!=0)
         decimalNum=(1<<bits)-decimalNum;
     std::string binaryNum;
@@ -165,6 +171,16 @@ void Assembler::cut(std::vector<std::string>&code){
     while(pos<code.size())
         code.erase(code.begin()+pos);
 }
+void Assembler::syntaxCheck(const std::vector<std::string>&code){
+    int cnt=1;
+    for(auto &i:code){
+        if(!std::regex_search(i,isValidSyntax)){
+            std::cout<<"syntax error on line "<<cnt;
+            exit(1);
+        }
+        cnt++;
+    }
+}
 std::map<std::string,long long>Assembler::linkLabel(const std::vector<std::string>&code){
     std::map<std::string,long long>link;
     long long pc=0;
@@ -210,6 +226,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         deleteSpaceAndComment(i);
     }
     cut(code);
+    syntaxCheck(code);
     std::map<std::string,long long>link=linkLabel(code);
     long long pc=0;
     for(auto &i:code){
@@ -297,8 +314,8 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             else if(word=="LD"||word=="LDI"||word=="LEA"||word=="ST"||word=="STI"){
                 iss>>word;
                 binLine+=regNameToStrBin(word[1]);
-                if(std::regex_match(word,isNumber))
-                    binLine+=numToStrBin(word,9);
+                if(std::regex_match(word.substr(3),isNumber))
+                    binLine+=numToStrBin(word.substr(3),9);
                 else
                     binLine+=numToStrBin("#"+std::to_string(link[word.substr(3)]-pc),9);
             }
