@@ -1,6 +1,4 @@
 #include"Assembler.h"
-#include<iostream>
-#include <sstream>
 Assembler::Assembler(){
     oprandToBinary["ADD"]="0001";
     oprandToBinary["AND"]="0101";
@@ -87,7 +85,7 @@ std::string Assembler::numToStrBin(const std::string &num, int bits){
         }
     }
     if((negative&&decimalNum>1<<(bits-1))||(!negative&&decimalNum>(1<<(bits-1))-1))
-        std::cout<<num,exit(2);//too big for the size
+        exit(2);//too big for the size
     if(negative&&decimalNum!=0)
         decimalNum=(1<<bits)-decimalNum;
     std::string binaryNum;
