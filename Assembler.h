@@ -1,6 +1,7 @@
 #include<string>
 #include<vector>
 #include<map>
+#include<sstream>
 #ifndef LC3_ASSEMBLER_ASSEMBLERTOOLS_H
 #define LC3_ASSEMBLER_ASSEMBLERTOOLS_H
 class Assembler{
