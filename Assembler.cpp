@@ -46,7 +46,7 @@ std::string Assembler::regNameToStrBin(const char &c){
         case '7':
             return "111";
         default:
-            std::cout<<"invalid register name";
+            std::cout<<"Invalid register name.";
             exit(1);
     }
 }
@@ -97,7 +97,7 @@ std::string Assembler::numToStrBin(const std::string &num, int bits){
         }
     }
     if((negative&&decimalNum>1<<(bits-1))||(!negative&&decimalNum>(1<<(bits-1))-1)){
-        std::cout<<"the number is too big";
+        std::cout<<"The number \""<<num<<"\" is too big.";
         exit(1);
     }
     if(negative&&decimalNum!=0)
@@ -182,7 +182,7 @@ void Assembler::syntaxCheck(const std::vector<std::string>&code){
     int cnt=1;
     for(auto &i:code){
         if(!std::regex_search(i,isValidSyntax)){
-            std::cout<<"syntax error on line "<<cnt;
+            std::cout<<"Syntax error on line "<<cnt<<".";
             exit(1);
         }
         cnt++;
