@@ -113,57 +113,61 @@ std::string Assembler::numToStrBin(const std::string &num, int bits){
     }
     return binaryNum;
 }
-void Assembler::capitalize(std::string &code){
-    for(auto &i:code){
-        if(i>='a'&&i<='z')
-            i=i-'a'+'A';
-        else if(i==9)//tab
-            i=' ';
+void Assembler::capitalize(std::vector<std::string>&code){
+    for(auto &line:code){
+        for(auto &i:line){
+            if(i>='a'&&i<='z')
+                i=i-'a'+'A';
+            else if(i==9)//tab
+                i=' ';
+        }
     }
 }
-void Assembler::deleteSpaceAndComment(std::string &code){
-    int pos=0;
-    std::string word;
-    do{
-        word="";
-        while(pos<code.length()&&code[pos]==' ')
-            code.erase(code.begin()+pos);
-        if(pos>=code.length())
-            return;
-        while(pos<code.length()&&code[pos]!=' '){
-            if(code[pos]=='"'){
-                pos++;
-                while(code[pos]!='"')
+void Assembler::deleteSpaceAndComment(std::vector<std::string>&code){
+    for(auto &line:code){
+        int pos=0;
+        std::string word;
+        do{
+            word="";
+            while(pos<line.length()&&line[pos]==' ')
+                line.erase(line.begin()+pos);
+            if(pos>=line.length())
+                break;
+            while(pos<line.length()&&line[pos]!=' '){
+                if(line[pos]=='"'){
                     pos++;
+                    while(line[pos]!='"')
+                        pos++;
+                    pos++;
+                }
+                if(line[pos]==';'){
+                    while(pos<line.length())
+                        line.erase(line.begin()+pos);
+                    while(line[--pos]==' ')
+                        line.erase(line.begin()+pos);
+                    break;
+                }
+                word+=line[pos];
                 pos++;
             }
-            if(code[pos]==';'){
-                while(pos<code.length())
-                    code.erase(code.begin()+pos);
-                while(code[--pos]==' ')
-                    code.erase(code.begin()+pos);
-                return;
+            if(pos>=line.length())
+                break;
+            pos++;
+        }while(oprandToBinary[word].empty());
+        while(pos<line.length()){
+            if(line[pos]==';'){
+                while(pos<line.length())
+                    line.erase(line.begin()+pos);
+                while(line[--pos]==' ')
+                    line.erase(line.begin()+pos);
+                break;
             }
-            word+=code[pos];
-            pos++;
-        }
-        if(pos>=code.length())
-            return;
-        pos++;
-    }while(oprandToBinary[word].empty());
-    while(pos<code.length()){
-        if(code[pos]==';'){
-            while(pos<code.length())
-                code.erase(code.begin()+pos);
-            while(code[--pos]==' ')
-                code.erase(code.begin()+pos);
-            return;
-        }
-        if(code[pos]!=' ')
-            pos++;
-        else{
-            while(pos<code.length()&&code[pos]==' ')
-                code.erase(code.begin()+pos);
+            if(line[pos]!=' ')
+                pos++;
+            else{
+                while(pos<line.length()&&line[pos]==' ')
+                    line.erase(line.begin()+pos);
+            }
         }
     }
 }
@@ -230,10 +234,8 @@ std::map<std::string,long long>Assembler::linkLabel(const std::vector<std::strin
 }
 std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
     std::vector<std::string>binCode;
-    for(auto &i:code){
-        capitalize(i);
-        deleteSpaceAndComment(i);
-    }
+    capitalize(code);
+    deleteSpaceAndComment(code);
     cut(code);
     syntaxCheck(code);
     std::map<std::string,long long>link=linkLabel(code);
