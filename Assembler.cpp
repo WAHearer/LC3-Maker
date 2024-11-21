@@ -117,6 +117,8 @@ void Assembler::capitalize(std::string &code){
     for(auto &i:code){
         if(i>='a'&&i<='z')
             i=i-'a'+'A';
+        else if(i==9)//tab
+            i=' ';
     }
 }
 void Assembler::deleteSpaceAndComment(std::string &code){
