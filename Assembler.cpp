@@ -1,4 +1,11 @@
 #include"Assembler.h"
+#define PCoffset(label,bits)({\
+    if(link.find(label)==link.end()){\
+        std::cout<<"Label \""<<label<<"\" does not exist.";\
+        exit(1);\
+    }\
+    numToStrBin("#"+std::to_string(link[label]-pc),bits);\
+})
 const std::regex isNumber("X[+-]?[0-9A-F]+|#[+-]?[0-9]+");
 const std::regex isValidSyntax("((ADD|AND) R[0-7],R[0-7],((R[0-7])|(X[+-]?[0-9A-F]+|#[+-]?[0-9]+)))|(BRN?Z?P? [^ ]+)|(JMP R[0-7])|(JSR [^ ]+)|(JSRR R[0-7])|((LD|LDI|LEA|ST|STI) R[0-7],[^ ]+)|((LDR|STR) R[0-7],R[0-7],(X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(NOT R[0-7],R[0-7])|RET|RTI|(TRAP (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|HALT|(\.ORIG (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.FILL (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.BLKW (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.STRINGZ \".+\")|\.END");
 Assembler::Assembler(){
@@ -289,7 +296,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 if(std::regex_match(word,isNumber))
                     binLine+=numToStrBin(word,9);
                 else
-                    binLine+=numToStrBin("#"+std::to_string(link[word]-pc),9);
+                    binLine+=PCoffset(word,9);
             }
             else if(word=="JMP"){
                 iss>>word;
@@ -303,7 +310,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 if(std::regex_match(word,isNumber))
                     binLine+=numToStrBin(word,11);
                 else
-                    binLine+=numToStrBin("#"+std::to_string(link[word]-pc),11);
+                    binLine+=PCoffset(word,11);
             }
             else if(word=="JSRR"){
                 iss>>word;
@@ -317,7 +324,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 if(std::regex_match(word.substr(3),isNumber))
                     binLine+=numToStrBin(word.substr(3),9);
                 else
-                    binLine+=numToStrBin("#"+std::to_string(link[word.substr(3)]-pc),9);
+                    binLine+=PCoffset(word.substr(3),9);
             }
             else if(word=="LDR"||word=="STR"){
                 iss>>word;
