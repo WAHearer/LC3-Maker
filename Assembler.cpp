@@ -355,7 +355,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             int length=numToDex(word);
             for(int j=1;j<=length;j++)
                 binCode.push_back("0000000000000000");
-            pc+=numToDex(word);
+            pc+=length;
         }
         else if(word==".STRINGZ"){
             iss>>word;
