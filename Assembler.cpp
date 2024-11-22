@@ -12,6 +12,13 @@ Assembler::Assembler(){
     oprandToBinary["ADD"]="0001";
     oprandToBinary["AND"]="0101";
     oprandToBinary["BR"]="0000";
+    oprandToBinary["BRN"]="0000";
+    oprandToBinary["BRZ"]="0000";
+    oprandToBinary["BRP"]="0000";
+    oprandToBinary["BRNZ"]="0000";
+    oprandToBinary["BRNP"]="0000";
+    oprandToBinary["BRZP"]="0000";
+    oprandToBinary["BRNZP"]="0000";
     oprandToBinary["JMP"]="1100";
     oprandToBinary["JSR"]="0100";
     oprandToBinary["JSRR"]="0100";
@@ -26,6 +33,12 @@ Assembler::Assembler(){
     oprandToBinary["STI"]="1011";
     oprandToBinary["STR"]="0111";
     oprandToBinary["TRAP"]="1111";
+    oprandToBinary["HALT"]="1111";
+    isPseudoInstruction[".ORIG"]=true;
+    isPseudoInstruction[".FILL"]=true;
+    isPseudoInstruction[".BLKW"]=true;
+    isPseudoInstruction[".STRINGZ"]=true;
+    isPseudoInstruction[".END"]=true;
 }
 std::string Assembler::regNameToStrBin(const char &c){
     switch(c){
@@ -201,33 +214,29 @@ std::map<std::string,long long>Assembler::linkLabel(const std::vector<std::strin
         std::istringstream iss(i);
         std::string word;
         iss>>word;
-        if(word==".ORIG"){
+        while(!iss.eof()&&oprandToBinary[word].empty()&&!isPseudoInstruction[word]){
+            link[word]=pc;
             iss>>word;
-            pc=numToDex(word);
         }
-        else if(word==".BLKW"){
-            iss>>word;
-            pc+=numToDex(word);
-        }
-        else if(word==".STRINGZ"){
-            iss>>word;
-            pc+=word.length()-2;
-        }
-        else if(word==".FILL"){
-            iss>>word;
+        if(!oprandToBinary[word].empty())
             pc++;
-        }
-        else if(!oprandToBinary[word].empty()||word.substr(0,2)=="BR")
-            pc++;
-        else if(word==".END")
-            pc=0;
-        else{//is a label
-            do{
-                link[word]=pc;
+        else if(isPseudoInstruction[word]){
+            if(word==".ORIG"){
                 iss>>word;
-            }while(!iss.eof()&&oprandToBinary[word].empty());
-            if(!oprandToBinary[word].empty())
+                pc=numToDex(word);
+            }
+            else if(word==".BLKW"){
+                iss>>word;
+                pc+=numToDex(word);
+            }
+            else if(word==".STRINGZ"){
+                iss>>word;
+                pc+=word.length()-2;
+            }
+            else if(word==".FILL"){
+                iss>>word;
                 pc++;
+            }
         }
     }
     return link;
@@ -243,32 +252,10 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
     for(auto &i:code){
         std::istringstream iss(i);
         std::string word;
-        iss>>word;
-        if(word==".ORIG"){
+        do{
             iss>>word;
-            pc=numToDex(word);
-            binCode.push_back(numToStrBin(word,16));
-        }
-        else if(word==".BLKW"){
-            iss>>word;
-            pc+=numToDex(word);
-        }
-        else if(word==".STRINGZ"){
-            iss>>word;
-            pc+=word.length()-2;
-        }
-        else if(word==".FILL")
-            pc++;
-        else if(word==".END")
-            pc=0;
-        while(!iss.eof()&&oprandToBinary[word].empty()&&word.substr(0,2)!="BR"&&word!="HALT")
-            iss>>word;
-        if(word=="HALT"){
-            pc++;
-            binCode.push_back("1111000000100101");
-            continue;
-        }
-        if(!oprandToBinary[word].empty()||word.substr(0,2)=="BR"){
+        }while(!iss.eof()&&oprandToBinary[word].empty()&&!isPseudoInstruction[word]);
+        if(!oprandToBinary[word].empty()){
             pc++;
             std::string binLine;
             if(!oprandToBinary[word].empty())
@@ -289,7 +276,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 }
             }
             else if(word.substr(0,2)=="BR"){
-                if(!word.find('N')&&!word.find('Z')&&!word.find('P'))
+                if(word.find('N')==std::string::npos&&word.find('Z')==std::string::npos&&word.find('P')==std::string::npos)
                     binLine+="111";
                 else{
                     binLine+=word.find('N')!=std::string::npos?"1":"0";
@@ -353,8 +340,36 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 binLine+="0000";
                 binLine+=numToStrBin(word,8);
             }
+            else if(word=="HALT"){
+                binLine+="000000100101";
+            }
             binCode.push_back(binLine);
         }
+        else if(word==".ORIG"){
+            iss>>word;
+            pc=numToDex(word);
+            binCode.push_back(numToStrBin(word,16));
+        }
+        else if(word==".BLKW"){
+            iss>>word;
+            int length=numToDex(word);
+            for(int j=1;j<=length;j++)
+                binCode.push_back("0000000000000000");
+            pc+=numToDex(word);
+        }
+        else if(word==".STRINGZ"){
+            iss>>word;
+            for(int j=1;j<word.length()-1;j++)
+                binCode.push_back(numToStrBin(std::to_string(int(word[j])),16));
+            pc+=word.length()-2;
+        }
+        else if(word==".FILL"){
+            iss>>word;
+            binCode.push_back(numToStrBin(word,16));
+            pc++;
+        }
+        else if(word==".END")
+            pc=0;
     }
     return binCode;
 }
