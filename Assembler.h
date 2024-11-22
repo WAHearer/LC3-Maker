@@ -9,6 +9,7 @@
 class Assembler{
 private:
     std::map<std::string,std::string>oprandToBinary;
+    std::map<std::string,bool>isPseudoInstruction;
     static std::string regNameToStrBin(const char &c);//translate register names to 3-bit binary
     static long long numToDex(const std::string &num);//translate decimal or hexadecimal number to long long decimal number
     static std::string numToStrBin(const std::string &num,int bits);//translate decimal or hexadecimal number to 2's complement
