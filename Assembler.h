@@ -10,7 +10,7 @@ class Assembler{
 private:
     std::map<std::string,std::string>oprandToBinary;
     std::map<std::string,bool>isPseudoInstruction;
-    static std::string regNameToStrBin(const char &c);//transform register names to 3-bit binary
+    static std::string regNameToStrBin(const char &c);//generate 3-bit register name
     static int numToDex(const std::string &num);//transform string type decimal or hexadecimal number to int type decimal number
     static std::string numToStrBin(const std::string &num,int bits);//transform decimal or hexadecimal number to 2's complement
     static void capitalize(std::vector<std::string>&code);//capitalize all letters and replace tab with space
