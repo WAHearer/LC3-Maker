@@ -63,8 +63,8 @@ std::string Assembler::regNameToStrBin(const char &c){
             exit(1);
     }
 }
-long long Assembler::numToDex(const std::string &num){
-    long long decimalNum=0;
+int Assembler::numToDex(const std::string &num){
+    int decimalNum=0;
     bool negative=false;
     if(num[0]=='X'){
         for(int i=1;i<num.length();i++){
@@ -207,9 +207,9 @@ void Assembler::syntaxCheck(const std::vector<std::string>&code){
         cnt++;
     }
 }
-std::map<std::string,long long>Assembler::linkLabel(const std::vector<std::string>&code){
-    std::map<std::string,long long>link;
-    long long pc=0;
+std::map<std::string,int>Assembler::linkLabel(const std::vector<std::string>&code){
+    std::map<std::string,int>link;
+    int pc=0;
     for(auto &i:code){
         std::istringstream iss(i);
         std::string word;
@@ -247,8 +247,8 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
     deleteSpaceAndComment(code);
     cut(code);
     syntaxCheck(code);
-    std::map<std::string,long long>link=linkLabel(code);
-    long long pc=0;
+    std::map<std::string,int>link=linkLabel(code);
+    int pc=0;
     for(auto &i:code){
         std::istringstream iss(i);
         std::string word;
@@ -352,7 +352,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         }
         else if(word==".BLKW"){
             iss>>word;
-            long long length=numToDex(word);
+            int length=numToDex(word);
             for(int j=1;j<=length;j++)
                 binCode.push_back("0000000000000000");
             pc+=length;
