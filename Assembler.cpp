@@ -352,7 +352,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         }
         else if(word==".BLKW"){
             iss>>word;
-            int length=numToDex(word);
+            long long length=numToDex(word);
             for(int j=1;j<=length;j++)
                 binCode.push_back("0000000000000000");
             pc+=length;
