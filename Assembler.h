@@ -16,7 +16,7 @@ private:
     static void capitalize(std::vector<std::string>&code);//capitalize all letters and replace tab with space
     void deleteSpaceAndComment(std::vector<std::string>&code);//delete unnecessary space and comment
     static void cut(std::vector<std::string>&code);//cut the program from .ORIG to .END and delete blank line
-    static void syntaxCheck(const std::vector<std::string>&code);//check the syntax of the program
+    void syntaxCheck(const std::vector<std::string>&code);//check the syntax of the program
     std::map<std::string,int>linkLabel(const std::vector<std::string>&code);//link label with address
 public:
     Assembler();
