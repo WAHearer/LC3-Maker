@@ -200,6 +200,18 @@ void Assembler::cut(std::vector<std::string>&code){
 void Assembler::syntaxCheck(const std::vector<std::string>&code){
     int cnt=1;
     for(auto &i:code){
+        std::istringstream iss(i);
+        std::string word;
+        bool flag=0;
+        while(!iss.eof()){
+            iss>>word;
+            if(!oprandToBinary[word].empty()||isPseudoInstruction[word]){
+                flag=1;
+                break;
+            }
+        }
+        if(!flag)//only labels
+            continue;
         if(!std::regex_search(i,isValidSyntax)){
             std::cout<<"Syntax error on line "<<cnt<<".";
             exit(1);
@@ -218,7 +230,9 @@ std::map<std::string,int>Assembler::linkLabel(const std::vector<std::string>&cod
             link[word]=pc;
             iss>>word;
         }
-        if(!oprandToBinary[word].empty())
+        if(oprandToBinary[word].empty()&&!isPseudoInstruction[word])
+            link[word]=pc;
+        else if(!oprandToBinary[word].empty())
             pc++;
         else if(isPseudoInstruction[word]){
             if(word==".ORIG"){
