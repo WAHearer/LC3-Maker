@@ -2,7 +2,7 @@
 #include<vector>
 #include"Assembler.h"
 using std::cin,std::cout,std::endl;
-int main() {
+int main(){
     Assembler assembler;
     freopen("code.txt","r",stdin);
     freopen("binCode.txt","w",stdout);

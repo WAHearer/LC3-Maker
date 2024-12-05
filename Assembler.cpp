@@ -7,7 +7,7 @@
     numToStrBin("#"+std::to_string(link[label]-pc),bits);\
 })
 const std::regex isNumber("X[+-]?[0-9A-F]+|#[+-]?[0-9]+");
-const std::regex isValidSyntax("((ADD|AND) R[0-7],R[0-7],((R[0-7])|(X[+-]?[0-9A-F]+|#[+-]?[0-9]+)))|(BRN?Z?P? [^ ]+)|(JMP R[0-7])|(JSR [^ ]+)|(JSRR R[0-7])|((LD|LDI|LEA|ST|STI) R[0-7],[^ ]+)|((LDR|STR) R[0-7],R[0-7],(X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(NOT R[0-7],R[0-7])|RET|RTI|(TRAP (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|HALT|(\.ORIG (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.FILL (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.BLKW (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.STRINGZ \".+\")|\.END");
+const std::regex isValidSyntax("((ADD|AND) R[0-7],R[0-7],((R[0-7])|(X[+-]?[0-9A-F]+|#[+-]?[0-9]+)))|(BRN?Z?P? [^ ]+)|(JMP R[0-7])|(JSR [^ ]+)|(JSRR R[0-7])|((LD|LDI|LEA|ST|STI) R[0-7],[^ ]+)|((LDR|STR) R[0-7],R[0-7],(X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(NOT R[0-7],R[0-7])|RET|RTI|(TRAP (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|GETC|OUT|PUTS|IN|PUTSP|HALT|(\.ORIG (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.FILL (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.BLKW (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.STRINGZ \".+\")|\.END");
 Assembler::Assembler(){
     oprandToBinary["ADD"]="0001";
     oprandToBinary["AND"]="0101";
@@ -33,6 +33,11 @@ Assembler::Assembler(){
     oprandToBinary["STI"]="1011";
     oprandToBinary["STR"]="0111";
     oprandToBinary["TRAP"]="1111";
+    oprandToBinary["GETC"]="1111";
+    oprandToBinary["OUT"]="1111";
+    oprandToBinary["PUTS"]="1111";
+    oprandToBinary["IN"]="1111";
+    oprandToBinary["PUTSP"]="1111";
     oprandToBinary["HALT"]="1111";
     isPseudoInstruction[".ORIG"]=true;
     isPseudoInstruction[".FILL"]=true;
@@ -353,6 +358,21 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 iss>>word;
                 binLine+="0000";
                 binLine+=numToStrBin(word,8);
+            }
+            else if(word=="GETC"){
+                binLine+="000000100000";
+            }
+            else if(word=="OUT"){
+                binLine+="000000100001";
+            }
+            else if(word=="PUTS"){
+                binLine+="000000100010";
+            }
+            else if(word=="IN"){
+                binLine+="000000100011";
+            }
+            else if(word=="PUTSP"){
+                binLine+="000000100100";
             }
             else if(word=="HALT"){
                 binLine+="000000100101";
