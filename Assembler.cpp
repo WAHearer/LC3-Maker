@@ -394,7 +394,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         else if(word==".STRINGZ"){
             iss>>word;
             for(int j=1;j<word.length()-1;j++)
-                binCode.push_back(numToStrBin(std::to_string(int(word[j])),16));
+                binCode.push_back(numToStrBin('#'+std::to_string(int(word[j])),16));
             pc+=word.length()-2;
         }
         else if(word==".FILL"){
