@@ -133,8 +133,11 @@ std::string Assembler::numToStrBin(const std::string &num, int bits){
 }
 void Assembler::capitalize(std::vector<std::string>&code){
     for(auto &line:code){
+        bool inStr=0;
         for(auto &i:line){
-            if(i>='a'&&i<='z')
+            if(i=='\"')
+                inStr=!inStr;
+            if(i>='a'&&i<='z'&&!inStr)
                 i=i-'a'+'A';
             else if(i==9)//tab
                 i=' ';
@@ -340,7 +343,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
                 iss>>word;
                 binLine+=regNameToStrBin(word[1]);
                 binLine+=regNameToStrBin(word[4]);
-                binLine+=numToStrBin(word,6);
+                binLine+=numToStrBin(word.substr(6),6);
             }
             else if(word=="NOT"){
                 iss>>word;
@@ -392,7 +395,8 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             pc+=length;
         }
         else if(word==".STRINGZ"){
-            iss>>word;
+            std::getline(iss,word);
+            std::cout<<word<<std::endl;
             for(int j=1;j<word.length()-1;j++)
                 binCode.push_back(numToStrBin('#'+std::to_string(int(word[j])),16));
             pc+=word.length()-2;
