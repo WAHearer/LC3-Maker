@@ -411,3 +411,155 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
     }
     return binCode;
 }
+
+short Runner::binToNum(const std::string &num){
+    short decimalNum=0;
+    for(auto &i:num){
+        decimalNum=decimalNum*2+i-'0';
+    }
+    if(decimalNum>=(1<<(num.length()-1)))
+        decimalNum-=(1<<num.length());
+    return decimalNum;
+}
+std::string Runner::numToBin(short num){
+    std::string binaryNum;
+    unsigned short unsignedNum=(num>=0)?num:num+65536;
+    for(int i=15;i>=0;i--){
+        if(unsignedNum>=(1<<i)){
+            unsignedNum-=(1<<i);
+            binaryNum+='1';
+        }
+        else
+            binaryNum+='0';
+    }
+    return binaryNum;
+}
+void Runner::run(std::vector<std::string>code){
+    short *r=new short[8];
+    short *memory=new short[65535];
+    unsigned short basic=(unsigned short)binToNum(code[0]);
+    bool n=false,z=false,p=false;
+    for(int i=0;i<code.size();i++){
+        memory[basic+i-1]=binToNum(code[i]);//load code into memory
+    }
+    unsigned short pc=basic;
+    while(true){
+        std::string line=numToBin(memory[pc]);
+        pc++;
+        std::string op=line.substr(0,4);
+        short &dr=r[binToNum(line.substr(4,3))];
+        short &sr1=r[binToNum(line.substr(7,3))];
+        short &sr2=r[binToNum(line.substr(13,3))];
+        short &baser=r[binToNum(line.substr(7,3))];
+        short imm5=binToNum(line.substr(11,5));
+        short offset6=binToNum(line.substr(10,6));
+        short offset9=binToNum(line.substr(7,9));
+        short offset11=binToNum(line.substr(5,11));
+        short trapvect8=binToNum(line.substr(8,8));
+        if(op=="0001"){//ADD
+            if(line[10]=='0')
+                dr=sr1+sr2;
+            else
+                dr=sr1+imm5;
+            n=(dr<0);
+            z=(dr==0);
+            p=(dr>0);
+        }
+        else if(op=="0101"){//AND
+            if(line[10]=='0')
+                dr=sr1&sr2;
+            else
+                dr=sr1&imm5;
+            n=(dr<0);
+            z=(dr==0);
+            p=(dr>0);
+        }
+        else if(op=="0000"){//BR
+            if((line[4]=='1'&&n)||(line[5]=='1'&&z)||(line[6]=='1'&&p))
+                pc+=offset9;
+        }
+        else if(op=="1100"){//JMP RET
+            pc=baser;
+        }
+        else if(op=="0100"){//JSR JSRR
+            r[7]=pc;
+            if(line[4]=='1')
+                pc+=offset11;
+            else
+                pc+=baser;
+        }
+        else if(op=="0010"){//LD
+            dr=memory[pc+offset9];
+            n=(dr<0);
+            z=(dr==0);
+            p=(dr>0);
+        }
+        else if(op=="1010"){//LDI
+            dr=memory[(unsigned short)memory[pc+offset9]];
+            n=(dr<0);
+            z=(dr==0);
+            p=(dr>0);
+        }
+        else if(op=="0110"){//LDR
+            dr=memory[(unsigned short)baser+offset6];
+            n=(dr<0);
+            z=(dr==0);
+            p=(dr>0);
+        }
+        else if(op=="1110"){//LEA
+            dr=pc+offset9;
+        }
+        else if(op=="1001"){//NOT
+            dr=(short)~sr1;
+            n=(dr<0);
+            z=(dr==0);
+            p=(dr>0);
+        }
+        else if(op=="1100"){//RET
+            pc=r[7];
+        }
+        else if(op=="0011"){//ST
+            memory[pc+offset9]=dr;
+        }
+        else if(op=="1011"){//STI
+            memory[(unsigned short)memory[pc+offset9]]=dr;
+        }
+        else if(op=="0111"){//STR
+            memory[(unsigned short)baser+offset6]=dr;
+        }
+        else if(op=="1111"){//TRAP
+            switch(trapvect8){
+                case(0x20)://GETC
+                    r[0]=getchar();
+                    break;
+                case(0x21)://OUT
+                    std::cout<<(char)r[0]<<std::endl;
+                    break;
+                case(0x22)://PUTS
+                    for(unsigned short i=r[0];memory[i];i++){
+                        std::cout<<(char)memory[i];
+                    }
+                    std::cout<<std::endl;
+                    break;
+                case(0x23)://IN
+                    std::cout<<"Input a character:";
+                    r[0]=getchar();
+                    break;
+                case(0x24)://PUTSP
+                    for(unsigned short i=r[0];;i++){
+                        if((char)memory[i]==0)
+                            break;
+                        std::cout<<(char)memory[i];
+                        if((char)(memory[i]>>8)==0)
+                            break;
+                        std::cout<<(char)(memory[i]>>8);
+                    }
+                    std::cout<<std::endl;
+                    break;
+                case(0x25)://HALT
+                    std::cout<<"Program halted";
+                    return;
+            }
+        }
+    }
+}

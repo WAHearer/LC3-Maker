@@ -4,6 +4,7 @@
 #include<sstream>
 #include<regex>
 #include<iostream>
+#include<ranges>
 #ifndef LC3_ASSEMBLER_ASSEMBLER_H
 #define LC3_ASSEMBLER_ASSEMBLER_H
 class Assembler{
@@ -21,5 +22,12 @@ private:
 public:
     Assembler();
     std::vector<std::string>assemble(std::vector<std::string>code);
+};
+class Runner{
+private:
+    static short binToNum(const std::string &num);//transform 16-bit binary to decimal
+    static std::string numToBin(short num);//transform decimal to 16-bit binary
+public:
+    void run(std::vector<std::string>code);
 };
 #endif
