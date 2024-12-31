@@ -396,9 +396,12 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         }
         else if(word==".STRINGZ"){
             std::getline(iss,word);
-            std::cout<<word<<std::endl;
-            for(int j=1;j<word.length()-1;j++)
-                binCode.push_back(numToStrBin('#'+std::to_string(int(word[j])),16));
+            int pos=0;
+            while(word[pos]!='\"')
+                pos++;
+            pos++;
+            for(;word[pos]!='\"';pos++)
+                binCode.push_back(numToStrBin('#'+std::to_string(int(word[pos])),16));
             pc+=word.length()-2;
         }
         else if(word==".FILL"){
