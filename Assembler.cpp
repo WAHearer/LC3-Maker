@@ -269,7 +269,7 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
     deleteSpaceAndComment(code);
     cut(code);
     syntaxCheck(code);
-    std::map<std::string,int>link=linkLabel(code);
+    std::map<std::string,int>link=std::move(linkLabel(code));
     int pc=0;
     for(auto &i:code){
         std::istringstream iss(i);
