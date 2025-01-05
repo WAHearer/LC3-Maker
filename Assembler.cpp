@@ -420,8 +420,14 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             iss>>word;
             if(std::regex_match(word,isNumber))
                 binCode.push_back(numToStrBin(word,16));
-            else
-                binCode.push_back(numToStrBin("#"+std::to_string(link[word]),16));
+            else{
+                if(link.find(word)==link.end()){
+                    std::cout<<"Label \""<<word<<"\" does not exist.";
+                    exit(1);
+                }
+                else
+                    binCode.push_back(numToStrBin("#"+std::to_string(link[word]),16));
+            }
             pc++;
         }
         else if(word==".END")
