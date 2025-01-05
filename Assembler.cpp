@@ -7,7 +7,7 @@
     numToStrBin("#"+std::to_string(link[label]-pc),bits);\
 })
 const std::regex isNumber("X[+-]?[0-9A-F]+|#[+-]?[0-9]+");
-const std::regex isValidSyntax("((ADD|AND) R[0-7],R[0-7],((R[0-7])|(X[+-]?[0-9A-F]+|#[+-]?[0-9]+)))|(BRN?Z?P? [^ ]+)|(JMP R[0-7])|(JSR [^ ]+)|(JSRR R[0-7])|((LD|LDI|LEA|ST|STI) R[0-7],[^ ]+)|((LDR|STR) R[0-7],R[0-7],(X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(NOT R[0-7],R[0-7])|RET|RTI|(TRAP (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|GETC|OUT|PUTS|IN|PUTSP|HALT|(\.ORIG (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.FILL (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.BLKW (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.STRINGZ \".+\")|\.END");
+const std::regex isValidSyntax("((ADD|AND) R[0-7],R[0-7],((R[0-7])|(X[+-]?[0-9A-F]+|#[+-]?[0-9]+)))|(BRN?Z?P? [^ ]+)|(JMP R[0-7])|(JSR [^ ]+)|(JSRR R[0-7])|((LD|LDI|LEA|ST|STI) R[0-7],[^ ]+)|((LDR|STR) R[0-7],R[0-7],(X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(NOT R[0-7],R[0-7])|RET|RTI|(TRAP (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|GETC|OUT|PUTS|IN|PUTSP|HALT|(\.ORIG (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.FILL [^ ]+)|(\.BLKW (X[+-]?[0-9A-F]+|#[+-]?[0-9]+))|(\.STRINGZ \".+\")|\.END");
 Assembler::Assembler(){
     oprandToBinary["ADD"]="0001";
     oprandToBinary["AND"]="0101";
@@ -193,21 +193,34 @@ void Assembler::deleteSpaceAndComment(std::vector<std::string>&code){
     }
 }
 void Assembler::cut(std::vector<std::string>&code){
-    while(code[0].substr(0,5)!=".ORIG")
-        code.erase(code.begin());
-    int pos=0;
-    while(code[pos]!=".END")
-        if(code[pos].empty())
-            code.erase(code.begin()+pos);
-        else
-            pos++;
-    pos++;
-    while(pos<code.size())
-        code.erase(code.begin()+pos);
+    bool start=0,end=0;
+    for(auto &line:code){
+        if(line.substr(0,5)==".ORIG"){
+            if(!start)
+                start=1;
+            else{
+                std::cout<<"error:multiple .ORIG instructions";
+                exit(1);
+            }
+        }
+        else if(line==".END"){
+            if(!end)
+                end=1;
+            else{
+                std::cout<<"error:multiple .END instructions";
+                exit(1);
+            }
+        }
+        else{
+            if(!start||end)
+                line="";
+        }
+    }
 }
 void Assembler::syntaxCheck(const std::vector<std::string>&code){
-    int cnt=1;
+    int cnt=0;
     for(auto &i:code){
+        cnt++;
         std::istringstream iss(i);
         std::string word;
         bool flag=0;
@@ -224,7 +237,6 @@ void Assembler::syntaxCheck(const std::vector<std::string>&code){
             std::cout<<"Syntax error on line "<<cnt<<".";
             exit(1);
         }
-        cnt++;
     }
 }
 std::map<std::string,int>Assembler::linkLabel(const std::vector<std::string>&code){
@@ -406,7 +418,10 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         }
         else if(word==".FILL"){
             iss>>word;
-            binCode.push_back(numToStrBin(word,16));
+            if(std::regex_match(word,isNumber))
+                binCode.push_back(numToStrBin(word,16));
+            else
+                binCode.push_back(numToStrBin("#"+std::to_string(link[word]),16));
             pc++;
         }
         else if(word==".END")
@@ -533,7 +548,7 @@ void Runner::run(std::vector<std::string>code){
         else if(op=="1111"){//TRAP
             switch(trapvect8){
                 case(0x20)://GETC
-                    r[0]=getchar();
+                    r[0]=getch();
                     break;
                 case(0x21)://OUT
                     std::cout<<(char)r[0]<<std::endl;
