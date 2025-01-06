@@ -747,7 +747,7 @@ void Runner::run(std::vector<std::string>code){
     pc=0x200;//start at x200
     mode=0;
     while(true){
-        if(KBSR&(1<<15)&&(KBSR&(1<<14))){
+        if(KBSR&(1<<15)&&(KBSR&(1<<14))&&PL<4){
             KBSR&=0b0111111111111111;
             short numPSR=0;
             for(int i=0;i<16;i++){
@@ -762,6 +762,9 @@ void Runner::run(std::vector<std::string>code){
             reg[6]--;
             memory[(unsigned)reg[6]]=pc;
             mode=0;
+            PSR[10]=1;
+            PSR[9]=0;
+            PSR[8]=0;//以PL4执行中断处理程序
             pc=memory[0x180];
         }
         check(pc);
