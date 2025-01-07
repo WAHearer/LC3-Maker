@@ -2,7 +2,6 @@
 #define check(pc)({\
     if(mode&&(pc<0x3000||pc>=0xFE00)){\
         std::cout<<"Error:memory "<<pc<<" is not accessible.";\
-        system("pause");\
         exit(1);\
     }\
 })
@@ -441,7 +440,6 @@ void Simulator::run(){
         else if(op=="1000"){//RTI
             if(mode==1){
                 std::cout<<"Error:invalid usage of RTI in user mode.";
-                system("pause");
                 exit(1);
             }
             pc=memory[(unsigned)reg[6]];
