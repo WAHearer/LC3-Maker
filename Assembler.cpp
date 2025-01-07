@@ -165,8 +165,11 @@ void Assembler::deleteSpaceAndComment(std::vector<std::string>&code){
             while(pos<line.length()&&line[pos]!=' '){
                 if(line[pos]=='"'){
                     pos++;
-                    while(line[pos]!='"')
+                    while(line[pos]!='"'){
+                        if(line[pos]=='\\')
+                            pos++;
                         pos++;
+                    }
                     pos++;
                 }
                 if(line[pos]==';'){
@@ -270,8 +273,16 @@ std::map<std::string,int>Assembler::linkLabel(const std::vector<std::string>&cod
                 pc+=numToDex(word);
             }
             else if(word==".STRINGZ"){
-                iss>>word;
-                pc+=word.length()-2;
+                std::getline(iss,word);
+                int pos=0;
+                while(word[pos]!='\"')
+                    pos++;
+                pos++;
+                for(;word[pos]!='\"';pos++){
+                    pc++;
+                    if(word[pos]=='\\')
+                        pos++;
+                }
             }
             else if(word==".FILL"){
                 iss>>word;
@@ -418,9 +429,32 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
             while(word[pos]!='\"')
                 pos++;
             pos++;
-            for(;word[pos]!='\"';pos++)
-                binCode.push_back(numToStrBin('#'+std::to_string(int(word[pos])),16));
-            pc+=word.length()-2;
+            for(;word[pos]!='\"';pos++){
+                pc++;
+                if(word[pos]=='\\'){
+                    if(word[pos+1]=='a')
+                        binCode.push_back(numToStrBin("#7",16));
+                    else if(word[pos+1]=='b')
+                        binCode.push_back(numToStrBin("#8",16));
+                    else if(word[pos+1]=='f')
+                        binCode.push_back(numToStrBin("#12",16));
+                    else if(word[pos+1]=='n')
+                        binCode.push_back(numToStrBin("#10",16));
+                    else if(word[pos+1]=='r')
+                        binCode.push_back(numToStrBin("#13",16));
+                    else if(word[pos+1]=='t')
+                        binCode.push_back(numToStrBin("#9",16));
+                    else if(word[pos+1]=='v')
+                        binCode.push_back(numToStrBin("#11",16));
+                    else if(word[pos+1]=='0')
+                        binCode.push_back(numToStrBin("#0",16));
+                    else
+                        binCode.push_back(numToStrBin('#'+std::to_string(int(word[pos+1])),16));
+                    pos++;
+                }
+                else
+                    binCode.push_back(numToStrBin('#'+std::to_string(int(word[pos])),16));
+            }
         }
         else if(word==".FILL"){
             iss>>word;
