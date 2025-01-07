@@ -4,8 +4,8 @@
 #include<map>
 #include<sstream>
 #include<regex>
-#ifndef LC3_ASSEMBLER_ASSEMBLER_H
-#define LC3_ASSEMBLER_ASSEMBLER_H
+#ifndef LC3_MAKER_ASSEMBLER_H
+#define LC3_MAKER_ASSEMBLER_H
 class Assembler{
 private:
     std::map<std::string,std::string>oprandToBinary;

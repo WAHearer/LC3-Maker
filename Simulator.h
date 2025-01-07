@@ -3,8 +3,8 @@
 #include<vector>
 #include<conio.h>
 #include<thread>
-#ifndef LC3_ASSEMBLER_SIMULATOR_H
-#define LC3_ASSEMBLER_SIMULATOR_H
+#ifndef LC3_MAKER_SIMULATOR_H
+#define LC3_MAKER_SIMULATOR_H
 class Simulator{
 private:
     short memory[65536],reg[8];
@@ -17,4 +17,4 @@ public:
     void load(std::vector<std::string>&code);
     void run();
 };
-#endif //LC3_ASSEMBLER_SIMULATOR_H
+#endif

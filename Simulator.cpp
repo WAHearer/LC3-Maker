@@ -2,6 +2,7 @@
 #define check(pc)({\
     if(mode&&(pc<0x3000||pc>=0xFE00)){\
         std::cout<<"error:memory "<<pc<<" is not accessible";\
+        system("pause");\
         exit(1);\
     }\
 })
