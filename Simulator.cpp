@@ -1,7 +1,7 @@
 #include"Simulator.h"
 #define check(pc)({\
     if(mode&&(pc<0x3000||pc>=0xFE00)){\
-        std::cout<<"error:memory "<<pc<<" is not accessible";\
+        std::cout<<"Error:memory "<<pc<<" is not accessible.";\
         system("pause");\
         exit(1);\
     }\
@@ -439,6 +439,11 @@ void Simulator::run(){
             pc=memory[trapvect8];
         }
         else if(op=="1000"){//RTI
+            if(mode==1){
+                std::cout<<"Error:invalid usage of RTI in user mode.";
+                system("pause");
+                exit(1);
+            }
             pc=memory[(unsigned)reg[6]];
             reg[6]++;
             for(int i=0;i<16;i++){
