@@ -1,12 +1,9 @@
+#include<iostream>
 #include<cstring>
 #include<vector>
 #include<map>
 #include<sstream>
 #include<regex>
-#include<iostream>
-#include<conio.h>
-#include<thread>
-#include<functional>
 #ifndef LC3_ASSEMBLER_ASSEMBLER_H
 #define LC3_ASSEMBLER_ASSEMBLER_H
 class Assembler{
@@ -24,17 +21,5 @@ private:
 public:
     Assembler();
     std::vector<std::string>assemble(std::vector<std::string>code);
-};
-class Runner{
-private:
-    short memory[65536],reg[8];
-    bool PSR[16];
-    unsigned short pc,SAVED_SSP,SAVED_USP;
-    short binToNum(const std::string &num);//transform 16-bit binary to decimal
-    std::string numToBin(short num);//transform decimal to 16-bit binary
-    void load(std::vector<std::string>&code);
-public:
-    Runner();
-    void run(std::vector<std::string>code);
 };
 #endif

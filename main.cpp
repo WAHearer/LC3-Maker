@@ -1,7 +1,8 @@
 #include<iostream>
-#include<fstream>
 #include<vector>
+#include<fstream>
 #include"Assembler.h"
+#include"Simulator.h"
 using std::cin,std::cout,std::endl;
 int main(){
     setbuf(stdout, 0);
@@ -13,7 +14,8 @@ int main(){
         code.push_back(strInput);
     }
     std::vector<std::string>binCode=assembler.assemble(code);
-    Runner runner;
-    runner.run(binCode);
+    Simulator simulator;
+    simulator.load(binCode);
+    simulator.run();
     return 0;
 }
