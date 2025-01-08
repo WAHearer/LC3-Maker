@@ -2,7 +2,8 @@
 #define check(pc)({\
     if(mode&&(pc<0x3000||pc>=0xFE00)){\
         std::cout<<"Error:memory "<<pc<<" is not accessible.";\
-        exit(1);\
+        system("pause");\
+        return;\
     }\
 })
 #define mode PSR[15]
@@ -330,7 +331,7 @@ void Simulator::run(){
         if(pc==0x30B)
             DSR&=0b0111111111111111;
         if(pc==0x36c)
-            system("pause");
+            return;
         pc++;
         std::string op=line.substr(0,4);
         short &dr=reg[binToNum(line.substr(4,3))];
@@ -440,7 +441,8 @@ void Simulator::run(){
         else if(op=="1000"){//RTI
             if(mode==1){
                 std::cout<<"Error:invalid usage of RTI in user mode.";
-                exit(1);
+                system("pause");
+                return;
             }
             pc=memory[(unsigned)reg[6]];
             reg[6]++;

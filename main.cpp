@@ -17,5 +17,6 @@ int main(){
     Simulator simulator;
     simulator.load(binCode);
     simulator.run();
+    system("pause");
     return 0;
 }
