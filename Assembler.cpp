@@ -68,7 +68,7 @@ std::string Assembler::regNameToStrBin(const char &c){
             exit(1);
     }
 }
-int Assembler::numToDex(const std::string &num){
+int Assembler::numToDec(const std::string &num){
     int decimalNum=0;
     bool negative=false;
     if(num[0]=='X'){
@@ -266,11 +266,11 @@ std::map<std::string,int>Assembler::linkLabel(const std::vector<std::string>&cod
         else if(isPseudoInstruction[word]){
             if(word==".ORIG"){
                 iss>>word;
-                pc=numToDex(word);
+                pc=numToDec(word);
             }
             else if(word==".BLKW"){
                 iss>>word;
-                pc+=numToDex(word);
+                pc+=numToDec(word);
             }
             else if(word==".STRINGZ"){
                 std::getline(iss,word);
@@ -413,12 +413,12 @@ std::vector<std::string>Assembler::assemble(std::vector<std::string>code){
         }
         else if(word==".ORIG"){
             iss>>word;
-            pc=numToDex(word);
+            pc=numToDec(word);
             binCode.push_back('!'+numToStrBin(word,16));
         }
         else if(word==".BLKW"){
             iss>>word;
-            int length=numToDex(word);
+            int length=numToDec(word);
             for(int j=1;j<=length;j++)
                 binCode.push_back("0000000000000000");
             pc+=length;

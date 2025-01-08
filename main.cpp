@@ -5,7 +5,7 @@
 #include"Simulator.h"
 using std::cin,std::cout,std::endl;
 int main(){
-    setbuf(stdout, 0);
+    setbuf(stdout, nullptr);
     Assembler assembler;
     std::ifstream ifs("code.txt");
     std::vector<std::string>code;

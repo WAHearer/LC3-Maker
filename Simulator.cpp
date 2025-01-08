@@ -283,7 +283,7 @@ void Simulator::load(std::vector<std::string>&code){
             pc++;
         }
     }
-};
+}
 void Simulator::run(){
     std::thread([this](){
         while(1){
