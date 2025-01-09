@@ -304,7 +304,7 @@ void Simulator::run(){
     pc=0x200;//start at x200
     mode=0;
     while(true){
-        if(KBSR&(1<<15)&&(KBSR&(1<<14))&&PL<4){
+        if(KBSR&(1<<15)&&KBSR&(1<<14)&&PL<4){
             KBSR&=0b0111111111111111;
             short numPSR=0;
             for(int i=0;i<16;i++){
